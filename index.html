@@ -4,200 +4,128 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TakeAM — Service Waker</title>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+
 <style>
-  :root {
-    --bg: #0a0a0f;
-    --surface: #12121a;
-    --border: #1e1e2e;
-    --accent: #00ff88;
-    --accent-dim: rgba(0,255,136,0.12);
-    --warn: #ff6b35;
-    --warn-dim: rgba(255,107,53,0.12);
-    --text: #e8e8f0;
-    --muted: #5a5a7a;
-  }
+:root {
+  --bg: #0a0a0f;
+  --surface: #12121a;
+  --border: #1e1e2e;
+  --accent: #00ff88;
+  --warn: #ff6b35;
+  --text: #e8e8f0;
+  --muted: #5a5a7a;
+}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Space Mono', monospace;
-    min-height: 100vh;
-    padding: 40px 24px;
-    background-image: 
-      radial-gradient(ellipse 60% 40% at 80% 10%, rgba(0,255,136,0.04) 0%, transparent 60%),
-      radial-gradient(ellipse 40% 60% at 10% 80%, rgba(0,100,255,0.04) 0%, transparent 60%);
-  }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Space Mono', monospace;
+  min-height: 100vh;
+  padding: 40px 24px;
+}
 
-  header {
-    max-width: 700px;
-    margin: 0 auto 48px;
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 16px;
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 20px;
-  }
+header {
+  max-width: 700px;
+  margin: 0 auto 48px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 20px;
+}
 
-  h1 {
-    font-family: 'Syne', sans-serif;
-    font-size: clamp(22px, 4vw, 32px);
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    color: #fff;
-  }
+h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+}
 
-  h1 span { color: var(--accent); }
+h1 span { color: var(--accent); }
 
-  .wake-all-btn {
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    padding: 10px 20px;
-    background: var(--accent);
-    color: #000;
-    border: none;
-    cursor: pointer;
-    border-radius: 4px;
-    white-space: nowrap;
-    transition: opacity 0.2s, transform 0.1s;
-    flex-shrink: 0;
-  }
+.wake-all-btn {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 10px 20px;
+  background: var(--accent);
+  color: #000;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+}
 
-  .wake-all-btn:hover { opacity: 0.85; }
-  .wake-all-btn:active { transform: scale(0.97); }
-  .wake-all-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.wake-all-btn:disabled { opacity: 0.4; }
 
-  .services {
-    max-width: 700px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
+.services {
+  max-width: 700px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
 
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 20px 24px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    transition: border-color 0.3s;
-  }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
 
-  .card.alive { border-color: var(--accent); }
-  .card.error { border-color: var(--warn); }
+.card.alive { border-color: var(--accent); }
+.card.error { border-color: var(--warn); }
 
-  .status-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: var(--muted);
-    flex-shrink: 0;
-    transition: background 0.3s, box-shadow 0.3s;
-  }
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--muted);
+}
 
-  .card.alive .status-dot {
-    background: var(--accent);
-    box-shadow: 0 0 8px var(--accent);
-    animation: pulse 2s infinite;
-  }
+.card.alive .status-dot {
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+}
 
-  .card.loading .status-dot {
-    background: #f0c040;
-    box-shadow: 0 0 8px #f0c040;
-    animation: blink 0.8s infinite;
-  }
+.card.error .status-dot {
+  background: var(--warn);
+  box-shadow: 0 0 8px var(--warn);
+}
 
-  .card.error .status-dot {
-    background: var(--warn);
-    box-shadow: 0 0 8px var(--warn);
-  }
+.info { flex: 1; }
 
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-  }
+.svc-name {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 3px;
+}
 
-  @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
-  }
+.svc-msg {
+  font-size: 11px;
+  margin-top: 6px;
+  color: var(--muted);
+}
 
-  .info { flex: 1; min-width: 0; }
+.card.alive .svc-msg { color: var(--accent); }
+.card.error .svc-msg { color: var(--warn); }
 
-  .svc-name {
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: 15px;
-    color: #fff;
-    margin-bottom: 3px;
-  }
-
-  .svc-url {
-    font-size: 10px;
-    color: var(--muted);
-    word-break: break-all;
-  }
-
-  .svc-msg {
-    font-size: 11px;
-    margin-top: 6px;
-    color: var(--muted);
-    min-height: 14px;
-    transition: color 0.3s;
-  }
-
-  .card.alive .svc-msg { color: var(--accent); }
-  .card.error .svc-msg { color: var(--warn); }
-
-  .ping-btn {
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    padding: 8px 16px;
-    background: transparent;
-    color: var(--text);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    cursor: pointer;
-    flex-shrink: 0;
-    transition: border-color 0.2s, color 0.2s, background 0.2s;
-  }
-
-  .ping-btn:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: var(--accent-dim);
-  }
-
-  .ping-btn:active { transform: scale(0.96); }
-  .ping-btn:disabled { opacity: 0.35; cursor: not-allowed; }
-
-  .card.loading .ping-btn {
-    border-color: #f0c040;
-    color: #f0c040;
-  }
-
-  footer {
-    max-width: 700px;
-    margin: 40px auto 0;
-    text-align: center;
-    font-size: 10px;
-    color: var(--muted);
-  }
+footer {
+  max-width: 700px;
+  margin: 40px auto 0;
+  text-align: center;
+  font-size: 10px;
+  color: var(--muted);
+}
 </style>
 </head>
+
 <body>
 
 <header>
@@ -207,92 +135,74 @@
 
 <div class="services" id="services"></div>
 
-<footer>ping services to wake them from render sleep</footer>
+<footer>Wake services through API Gateway</footer>
 
 <script>
+const WAKE_URL = "https://takeam-api-gateway.onrender.com/internal/wake-services";
+
 const SERVICES = [
-  {
-    name: "API Gateway",
-    url: "https://takeam-api-gateway.onrender.com/health",
-    description: "Main gateway"
-  },
-  {
-    name: "Intake Service",
-    url: "https://takeam-intake-service-latest.onrender.com/health",
-    description: "Intake service"
-  },
-  {
-    name: "Marketplace Service",
-    url: "https://takeam-marketplace-service-latest.onrender.com/health",
-    description: "Marketplace service"
-  },
-  {
-    name: "User Service",
-    url: "https://takeam-user-service.onrender.com/actuator/health",
-    description: "User service (Spring Boot)"
-  }
+  { name: "API Gateway" },
+  { name: "Intake Service", match: "intake" },
+  { name: "Marketplace Service", match: "marketplace" },
+  { name: "User Service", match: "user" }
 ];
 
 function renderCards() {
   const container = document.getElementById('services');
   container.innerHTML = SERVICES.map((s, i) => `
     <div class="card" id="card-${i}">
-      <div class="status-dot" id="dot-${i}"></div>
+      <div class="status-dot"></div>
       <div class="info">
         <div class="svc-name">${s.name}</div>
-        <div class="svc-url">${s.url}</div>
         <div class="svc-msg" id="msg-${i}">— not pinged yet</div>
       </div>
-      <button class="ping-btn" id="btn-${i}" onclick="ping(${i})">Ping</button>
     </div>
   `).join('');
 }
 
-async function ping(i) {
-  const card = document.getElementById(`card-${i}`);
-  const msg = document.getElementById(`msg-${i}`);
-  const btn = document.getElementById(`btn-${i}`);
-  const svc = SERVICES[i];
-
-  card.className = 'card loading';
-  btn.disabled = true;
-  msg.textContent = 'Waking up…';
-
-  const start = Date.now();
-
-  try {
-    const res = await fetch(svc.url, { mode: 'cors' });
-    const elapsed = Date.now() - start;
-    const text = await res.text();
-    let summary = '';
-    try {
-      const json = JSON.parse(text);
-      summary = json.status || json.message || JSON.stringify(json).slice(0, 60);
-    } catch {
-      summary = text.slice(0, 60);
-    }
-    card.className = 'card alive';
-    msg.textContent = `✓ ${res.status} · ${elapsed}ms · ${summary}`;
-  } catch (e) {
-    const elapsed = Date.now() - start;
-    card.className = 'card error';
-    msg.textContent = `✗ ${e.message || 'Network error'} · ${elapsed}ms`;
-  }
-
-  btn.disabled = false;
-  btn.textContent = 'Ping';
+function updateCard(index, isAlive, message) {
+  const card = document.getElementById(`card-${index}`);
+  const msg = document.getElementById(`msg-${index}`);
+  card.className = isAlive ? "card alive" : "card error";
+  msg.textContent = isAlive ? `✓ ${message}` : `✗ ${message}`;
 }
 
 async function wakeAll() {
-  const allBtn = document.querySelector('.wake-all-btn');
-  allBtn.disabled = true;
-  allBtn.textContent = 'Waking…';
-  await Promise.all(SERVICES.map((_, i) => ping(i)));
-  allBtn.disabled = false;
-  allBtn.textContent = '⚡ Wake All';
+  const btn = document.querySelector('.wake-all-btn');
+  btn.disabled = true;
+  btn.textContent = "Waking…";
+
+  try {
+    const res = await fetch(WAKE_URL);
+    const data = await res.json();
+
+    // Gateway itself is alive if request succeeded
+    updateCard(0, true, "Gateway responded");
+
+    // Match each service result
+    data.forEach(result => {
+      const lower = result.toLowerCase();
+
+      SERVICES.forEach((svc, index) => {
+        if (svc.match && lower.includes(svc.match)) {
+          const success = result.includes("200");
+          updateCard(index, success, result);
+        }
+      });
+    });
+
+  } catch (e) {
+    SERVICES.forEach((_, i) => {
+      updateCard(i, false, "Gateway error");
+    });
+  }
+
+  btn.disabled = false;
+  btn.textContent = "⚡ Wake All";
 }
 
 renderCards();
 </script>
+
 </body>
 </html>
